@@ -6,6 +6,10 @@
 
 
 
+### v1.0
+
+
+
 **1), util.c -> getlibcaddr 函数有问题**
 
 无法正确获取libc.so基地址,,,,需要修改表达式
@@ -25,6 +29,36 @@ b), 该shellcode不需要参数的,,导致多出一些机器码
 同时还存在的bug就是, 无论调用dlopen还是`__libc_dlopen_mode()`, 都得保证rsp是16的倍数,不然又TMD异常报错
 
 就像以前做pwn题,调用system函数前,保证rsp是16的倍数
+
+
+
+effects
+
+```bash
+┌──(kali㉿G16-7620)-[~/linux-inject2]
+└─$ ./inject -n sample-target sample-library.so 
+targeting process "sample-target" with pid 12538
+[inject]: change target process status
+[inject]: write shellcode and run malloc()
+[inject]: get remote addr for malloc() = eba066d0
+[inject]: write libpath to remote process memory buffer and run dlopen():  linux-inject2/sample-library.so
+[inject]: get remote sample-library.so at =eba06770
+[inject]: "sample-library.so" successfully injected
+[inject]: detach from pid = 12538
+
+┌──(kali㉿G16-7620)-[~/linux-inject2]
+└─$ ./sample-target
+sleeping...
+sleeping..
+sleeping...
+I just got loaded
+sleeping...
+sleeping...
+sleeping...
+sleeping...
+sleeping...
+sleeping...
+```
 
 
 
