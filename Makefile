@@ -1,4 +1,4 @@
-CC	= clang
+CC	= gcc
 CFLAGS	= -std=gnu99 -ggdb
 UNAME_M := $(shell uname -m)
 
@@ -26,9 +26,6 @@ x86_64:
 	$(CC) $(CFLAGS) -o inject utils.c ptrace.c inject-x86_64.c -ldl
 	$(CC) $(CFLAGS) -D_GNU_SOURCE -shared -o sample-library.so -fPIC sample-library.c
 	$(CC) $(CFLAGS) -o sample-target sample-target.c
-	$(CC) -m32 $(CFLAGS) -o inject32 utils.c ptrace.c inject-x86.c -ldl
-	$(CC) -m32 $(CFLAGS) -D_GNU_SOURCE -shared -o sample-library32.so -fPIC sample-library.c
-	$(CC) -m32 $(CFLAGS) -o sample-target32 sample-target.c
 
 sample-library.so: sample-library.c
 	$(CC) $(CFLAGS) -D_GNU_SOURCE -shared -o sample-library.so -fPIC sample-library.c

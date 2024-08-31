@@ -1,4 +1,41 @@
-# linux-inject
+# linux-inject2
+
+一个8年前的项目..我修复了一些bug
+
+## inject-x86_64.c的bugs
+
+
+
+**1), util.c -> getlibcaddr 函数有问题**
+
+无法正确获取libc.so基地址,,,,需要修改表达式
+
+**2), inject-x86_64.c 的shellcode有问题**
+
+a).free函数没有被调用,不影响正常执行
+
+如果要调用,还得修改rdi寄存器的值
+
+b), 该shellcode不需要参数的,,导致多出一些机器码
+
+**3), `__libc_dlopen_mode()`函数无法通过dlsym直接获取**
+
+所以选用dlopen
+
+同时还存在的bug就是, 无论调用dlopen还是`__libc_dlopen_mode()`, 都得保证rsp是16的倍数,不然又TMD异常报错
+
+就像以前做pwn题,调用system函数前,保证rsp是16的倍数
+
+
+
+
+
+
+
+# org-linux-inject
+
+
+
 **Tool for injecting a shared object into a Linux process**
 
 * Provides the Linux equivalent of using `CreateRemoteThread()` on Windows to inject a DLL into a running process

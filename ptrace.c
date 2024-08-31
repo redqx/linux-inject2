@@ -92,24 +92,48 @@ void ptrace_getregs(pid_t target, struct REG_TYPE* regs)
  *
  */
 
-void ptrace_cont(pid_t target)
+void ptrace_f9(pid_t target, int justwait)
 {
-	struct timespec* sleeptime = malloc(sizeof(struct timespec));
-
-	sleeptime->tv_sec = 0;
-	sleeptime->tv_nsec = 5000000;
-
 	if(ptrace(PTRACE_CONT, target, NULL, NULL) == -1)
 	{
 		fprintf(stderr, "ptrace(PTRACE_CONT) failed\n");
 		exit(1);
 	}
 
-	nanosleep(sleeptime, NULL);
-
 	// make sure the target process received SIGTRAP after stopping.
-	checktargetsig(target);
+	//checktargetsig(target);
+	if(justwait)
+	{
+		int waitpidstatus;
+		if(waitpid(target, &waitpidstatus, WUNTRACED) != target)
+		{
+			fprintf(stderr, "waitpid(%d) failed\n", target);
+			exit(1);
+		}
+	}
 }
+
+
+void ptrace_f7(pid_t target, int justwait)
+{
+	int waitpidstatus;
+
+	if(ptrace(PTRACE_SINGLESTEP, target, NULL, NULL) == -1)
+	{
+		fprintf(stderr, "ptrace(PTRACE_SINGLESTEP) failed\n");
+		exit(1);
+	}
+	if(justwait)
+	{
+		if(waitpid(target, &waitpidstatus, WUNTRACED) != target)
+		{
+			fprintf(stderr, "waitpid(%d) failed\n", target);
+			exit(1);
+		}
+	}
+
+}
+
 
 /*
  * ptrace_setregs()
@@ -270,9 +294,9 @@ void checktargetsig(int pid)
  *
  */
 
-void restoreStateAndDetach(pid_t target, unsigned long addr, void* backup, int datasize, struct REG_TYPE oldregs)
+void restoreStateAndDetach(pid_t target, unsigned long remote_mem_rwx, void* backup, int datasize, struct REG_TYPE oldregs)
 {
-	ptrace_write(target, addr, backup, datasize);
-	ptrace_setregs(target, &oldregs);
-	ptrace_detach(target);
+	ptrace_write(target, remote_mem_rwx, backup, datasize);//恢复之前的指令
+	ptrace_setregs(target, &oldregs);//恢复之前的寄存器
+	ptrace_detach(target);//detach
 }
